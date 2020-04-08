@@ -1,9 +1,14 @@
 import React, { Component } from 'react'
-import { View, Text, ScrollView, StyleSheet, Image, TouchableHighlight, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableHighlight, ActivityIndicator, Dimensions } from 'react-native';
 import Config from 'react-native-config';
 import { connect } from 'react-redux';
+import { Image } from 'react-native-elements';
 
 import { Creators as MoviesCreators } from '../../reducers/movies';
+
+
+const { width } = Dimensions.get('window');
+const SCREEN_WIDTH = width;
 
 class DinamicListScreen extends Component {
   componentDidMount() {
@@ -34,20 +39,17 @@ class DinamicListScreen extends Component {
     }
 
     return (
-      <ScrollView>
-        <View style={styles.announcement}>
+      <ScrollView style={styles.content}>
+        <View style={styles.content}>
           <View style={styles.imageList}>
-            <View style={styles.navContent}>
-              {
-                movie.poster_path ?
-                  <Image style={styles.image} source={{uri: Config.SERVER_IMGS + movie.poster_path }} />
-                :
-                  <Image style={styles.image} source={require('../../assets/images/img-default.png')} />
-              }
-            </View>
+            <Image
+              source={{ uri: Config.SERVER_IMGS + movie.backdrop_path }}
+              style={ styles.image }
+              PlaceholderContent={<ActivityIndicator />}
+            />
           </View>
           <Text style={styles.title}>
-            { movie.title }
+            { movie.original_title }
           </Text>
           <Text style={styles.subtitle}>
             {
@@ -56,11 +58,11 @@ class DinamicListScreen extends Component {
               : null
             }
           </Text>
-          <Text style={{...styles.price, color: "#E2E2E2"}}>
-            
+          <Text style={styles.overview}>
+            { movie.overview }
           </Text>
         </View>
-        <TouchableHighlight style={{paddingHorizontal: 29, marginTop: 15, justifyContent: 'center', alignItems: 'center' }} onPress={() => this.onReturn()}>
+        <TouchableHighlight style={ styles.btnReturn } onPress={() => this.onReturn()}>
           <Text style={{color: '#000000b3', fontSize: 16, fontFamily: 'Poppins-Bold'}}>
             Voltar
           </Text>
@@ -72,21 +74,13 @@ class DinamicListScreen extends Component {
 
 const styles = StyleSheet.create({
   content: { flex: 1 },
-  announcement: { alignItems: "center" },
-  imageList: {  },
-  image: {},
-  title: { color: '#000000DD', fontSize: 21, fontFamily: 'Montserrat-ExtraBold', marginTop: 10 },
-  subtitle: { color: '#000000DD', fontSize: 17, fontFamily: 'Montserrat-SemiBold', lineHeight: 18 },
-  price: { fontSize: 23, fontFamily: 'Montserrat-ExtraBold', letterSpacing: 0.85 },
-  navContent: { alignItems: 'center', justifyContent: 'center', marginTop: 20, backgroundColor: 'white' },
-  navBalls: { flexDirection: "row", justifyContent: 'space-between', alignItems: 'center', width: 90 },
-  ball: { width: 11, height: 11, borderRadius: 8 },
-  activityIndicator: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 80
-  }
+  activityIndicator: { flex: 1, justifyContent: 'center', alignItems: 'center', height: 80 },
+  imageList: { alignItems: 'center', justifyContent: 'center' },
+  image: { width: SCREEN_WIDTH, height: 200 },
+  title: { color: '#000000DD', fontSize: 21, fontFamily: 'Montserrat-ExtraBold', marginTop: 10, marginLeft: 20 },
+  subtitle: { color: '#000000DD', fontSize: 12, fontFamily: 'Montserrat-SemiBold', lineHeight: 18, marginLeft: 20 },
+  overview: { flex: 1, fontSize: 13, fontFamily: 'Montserrat', color: '#000000DD', marginHorizontal: 20, marginTop: 20, textAlign: 'justify' },
+  btnReturn: {paddingHorizontal: 29, marginTop: 20, marginBottom: 30, textAlign: 'left' }
 })
 
 const mapStateToProps = (store) => {

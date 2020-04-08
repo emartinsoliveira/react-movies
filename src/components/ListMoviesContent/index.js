@@ -8,11 +8,16 @@ import { Creators as MoviesCreators } from '../../reducers/movies';
 import { RecipeCard } from '../../assets/styles/AppStyles';
 
 class ListMoviesContent extends Component {
-  async componentDidMount() {
+  constructor(props) {
+    super(props);
+    this.fetch()
+  }
+
+  fetch = async () => {
     const { type } = this.props;
     await this.props.fetchMovies(type);
   }
-
+  
   onPressRecipe = item => {
     this.props.navigation.navigate('DetailTab', { item });
   };
@@ -26,7 +31,7 @@ class ListMoviesContent extends Component {
           :
             <Image style={RecipeCard.photo} source={require('../../assets/images/img-default.png')} />
         }
-        <Text style={RecipeCard.title}>{item.name}</Text>
+        <Text style={RecipeCard.title}>{item.title}</Text>
       </View>
     </TouchableHighlight>
   );
@@ -34,28 +39,36 @@ class ListMoviesContent extends Component {
   render() {
     const { stylesContainer, movies, type } = this.props;
     let dataItens = [];
+
     if (movies[type]) {
-      dataItens = movies[type].results || [];
+      dataItens = movies[type].results;
+      return (
+        <View style={styles.contentRounded, { ...stylesContainer }}>
+          {
+            dataItens.length ?
+              <FlatList
+                horizontal
+                showsVerticalScrollIndicator={false}
+                data={dataItens}
+                renderItem={this.renderMovie}
+                keyExtractor={item => `${item.id}`}
+              />
+            : 
+              <View style={styles.cardEmpty}>
+                <Text style={styles.cardTextEmpty}>
+                  Sem filmes a exibir
+                </Text>
+              </View>
+          }
+        </View>
+      )
     }
 
-    return (
-      <View style={styles.contentRounded, { ...stylesContainer }}>
-        {
-          dataItens.length ?
-            <FlatList
-              horizontal
-              showsVerticalScrollIndicator={false}
-              data={dataItens}
-              renderItem={this.renderMovie}
-              keyExtractor={item => `${item.id}`}
-            />
-          : 
-            <View style={styles.cardEmpty}>
-              <Text style={styles.cardTextEmpty}>
-                Sem filmes a exibir
-              </Text>
-            </View>
-        }
+    return(
+      <View style={styles.cardEmpty}>
+        <Text style={styles.cardTextEmpty}>
+          Sem filmes a exibir para a categoria
+        </Text>
       </View>
     )
   }

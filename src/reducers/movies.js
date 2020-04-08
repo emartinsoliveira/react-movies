@@ -72,7 +72,6 @@ export const Creators = {
         ]);
       })
       .catch((error) => {
-        console.log(error)
         dispatch(Creators.setIsLoading(false));
       });
   },
@@ -90,12 +89,15 @@ export const Creators = {
         dispatch(Creators.setIsLoading(false));
       });
   },
-  fetchMovies: (type) => (dispatch, getState) => {
+  fetchMovies: (idGenre) => (dispatch, getState) => {
+    let params = {
+      with_genres: idGenre
+    }
     api
-      .get(`/movie/${type}/lists`)
+      .get(`/discover/movie`, params)
       .then(res => {
         const moviesList = getState().MoviesReducer.movies;
-        moviesList[type] = res.data;
+        moviesList[idGenre] = res.data;
         dispatch([
           Creators.setMovies(moviesList)
         ]);
