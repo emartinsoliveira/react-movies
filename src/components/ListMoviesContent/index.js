@@ -6,16 +6,42 @@ import Config from 'react-native-config';
 
 import { Creators as MoviesCreators } from '../../reducers/movies';
 import { RecipeCard } from '../../assets/styles/AppStyles';
+import api from '../../services/api';
 
 class ListMoviesContent extends Component {
+  state = {
+    movies: []
+  }
+
   constructor(props) {
     super(props);
     this.fetch()
   }
 
+  fetchMovies = () => {
+    const { type } = this.props;
+    const params = {
+      with_genres: type
+    }
+    return new Promise((resolve, reject) => {
+      api
+        .get(`/discover/movie`, params)
+        .then(res => {
+          return resolve(res.data);
+        }).catch((error) => {
+          return reject(error);
+        });
+    });
+  }
+
   fetch = async () => {
     const { type } = this.props;
-    await this.props.fetchMovies(type);
+    const data = await this.fetchMovies(type);
+    if (data.results) {
+      this.setState({
+        movies: data.results
+      })
+    }
   }
   
   onPressRecipe = item => {
@@ -37,38 +63,27 @@ class ListMoviesContent extends Component {
   );
 
   render() {
-    const { stylesContainer, movies, type } = this.props;
-    let dataItens = [];
+    const { stylesContainer, type } = this.props;
+    const { movies } = this.state
 
-    if (movies[type]) {
-      dataItens = movies[type].results;
-      return (
-        <View style={styles.contentRounded, { ...stylesContainer }}>
-          {
-            dataItens.length ?
-              <FlatList
-                horizontal
-                showsVerticalScrollIndicator={false}
-                data={dataItens}
-                renderItem={this.renderMovie}
-                keyExtractor={item => `${item.id}`}
-              />
-            : 
-              <View style={styles.cardEmpty}>
-                <Text style={styles.cardTextEmpty}>
-                  Sem filmes a exibir
-                </Text>
-              </View>
-          }
-        </View>
-      )
-    }
-
-    return(
-      <View style={styles.cardEmpty}>
-        <Text style={styles.cardTextEmpty}>
-          Sem filmes a exibir para a categoria
-        </Text>
+    return (
+      <View style={styles.contentRounded, { ...stylesContainer }}>
+        {
+          movies.length ?
+            <FlatList
+              horizontal
+              showsVerticalScrollIndicator={false}
+              data={movies}
+              renderItem={this.renderMovie}
+              keyExtractor={item => `${item.id}`}
+            />
+          : 
+            <View style={styles.cardEmpty}>
+              <Text style={styles.cardTextEmpty}>
+                Sem filmes a exibir
+              </Text>
+            </View>
+        }
       </View>
     )
   }
@@ -98,10 +113,4 @@ const mapStateToProps = (store) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return({
-    fetchMovies: (payload) => { dispatch(MoviesCreators.fetchMovies(payload)) }
-  })
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ListMoviesContent);
+export default connect(mapStateToProps)(ListMoviesContent);

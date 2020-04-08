@@ -93,17 +93,20 @@ export const Creators = {
     let params = {
       with_genres: idGenre
     }
-    api
-      .get(`/discover/movie`, params)
-      .then(res => {
-        const moviesList = getState().MoviesReducer.movies;
-        moviesList[idGenre] = res.data;
-        dispatch([
-          Creators.setMovies(moviesList)
-        ]);
-      }).catch((error) => {
-        return false;
-      });
+    return new Promise((resolve, reject) => {
+      api
+        .get(`/discover/movie`, params)
+        .then(res => {
+          const moviesList = getState().MoviesReducer.movies;
+          moviesList[idGenre] = res.data;
+          dispatch([
+            Creators.setMovies(moviesList)
+          ]);
+          return resolve('xxxx');
+        }).catch((error) => {
+          return reject('aaaaaaa');
+        });
+    });
   },
   fetchMovieDetail: (id) => (dispatch) => {
     dispatch(Creators.setIsLoading(true));
